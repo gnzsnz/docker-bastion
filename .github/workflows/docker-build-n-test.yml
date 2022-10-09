@@ -79,6 +79,7 @@ jobs:
       run: |
         docker run -d --name server openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         /usr/sbin/sshd -D -e
+        docker wait client
         docker run -t --rm --name client openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} ssh -G
         docker wait client
