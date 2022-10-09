@@ -84,10 +84,10 @@ jobs:
 
     - name: test bastion
       run: |
-        docker exec client ssh ${{ USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} ssh -G
+        docker exec client ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} ssh -G
         #
         # through bastion
-        docker exec client ssh ${{ USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} -J ${{ USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} ssh -G
+        docker exec client ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} -J ${{ env.USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} ssh -G
         docker logs -t bastion | grep "Accepted publickey for ${{ env.USER }}"
         docker logs -t bastion
         
