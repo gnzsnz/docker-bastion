@@ -48,18 +48,17 @@ jobs:
         docker run -d -p ${{ env.SERVER_PORT }}:22 \
         --name server --add-host host.docker.internal:host-gateway \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
-        docker run -d --name client --add-host host.docker.internal:host-gateway \
-        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
-        sleep 15
-
-    - name: Provision and run OpenSSH Bastion
-      run: |
+        docker run -d --name client --rm --add-host host.docker.internal:host-gateway \
+        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} sleep 5
         mkdir -vp data/home/${{ env.USER }}/.ssh
-        docker ps
         # get authorized_keys from client
         docker cp client:/home/${{ env.USER }}/.ssh/authorized_keys \ 
         data/home/${{ env.USER }}/.ssh/authorized_keys
-        docker cp client:/home/${{ env.USER }}/.ssh/known_hosts data/home/${{ env.USER }}/.ssh/known_hosts
+        docker cp client:/home/${{ env.USER }}/.ssh/known_hosts \
+        data/home/${{ env.USER }}/.ssh/known_hosts
+
+    - name: Provision and run OpenSSH Bastion
+      run: |
         # provision bastion
         docker run --rm --env-file .env -v $PWD/data:/data \
         ${{ github.repository }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} /provision.sh
@@ -69,11 +68,13 @@ jobs:
         echo "[host.docker.internal]:${{ env.SSH_LISTEN_PORT }} "  $(<data/etc/ssh/ssh_host_rsa_key.pub) >> /tmp/known_hosts
         #
         # copy known_host to client
-        docker cp /tmp/known_hosts client:/tmp
+        docker run -d --name client --rm --add-host host.docker.internal:host-gateway \
+        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} sleep 5
+        docker cp /tmp/known_hosts client:/tmp/known_hosts
         docker exec client tee -a /home/${{ env.USER }}/.ssh/known_hosts < /tmp/known_hosts
         #
         # run bastion
-        docker run --env-file .env -p ${{ env.SSH_LISTEN_PORT }}:22 \
+        docker run -d --env-file .env -p ${{ env.SSH_LISTEN_PORT }}:22 \
           -v $PWD/data/etc/passwd:/etc/passwd:ro \
           -v $PWD/data/etc/shadow:/etc/shadow:ro \
           -v $PWD/data/etc/group:/etc/group:ro \
@@ -86,10 +87,14 @@ jobs:
 
     - name: test bastion
       run: |
-        docker exec client ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} ssh -G
+        docker run -d --name server openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
+        /usr/sbin/sshd -D -e
+        docker run -t --name client openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
+        ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} ssh -G
         #
         # through bastion
-        docker exec client ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} -J ${{ env.USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} ssh -G
+        docker run -t --name client openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
+        ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} -J ${{ env.USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} ssh -G
         docker logs -t bastion | grep "Accepted publickey for ${{ env.USER }}"
         docker logs -t bastion
         
