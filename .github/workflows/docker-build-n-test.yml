@@ -43,22 +43,19 @@ jobs:
         --build-arg BASE_VERSION=${{ matrix.image_os }} \
         --tag openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
 
-    - name: Run server and client
+    - name: Get client authorized keys
       run: |
-        docker run -d -p ${{ env.SERVER_PORT }}:22 \
-        --name server --add-host host.docker.internal:host-gateway \
-        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
         docker run -d --name client --rm --add-host host.docker.internal:host-gateway \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} sleep 5
-        mkdir -vp data/home/${{ env.USER }}/.ssh
         # get authorized_keys from client
         docker cp client:/home/${{ env.USER }}/.ssh/authorized_keys \ 
-        data/home/${{ env.USER }}/.ssh/authorized_keys
-        docker cp client:/home/${{ env.USER }}/.ssh/known_hosts \
-        data/home/${{ env.USER }}/.ssh/known_hosts
+        /tmp/authorized_keys
+        
 
     - name: Provision and run OpenSSH Bastion
       run: |
+        mkdir -vp data/home/${{ env.USER }}/.ssh
+        cp -va /tmp/authorized_keys data/home/${{ env.USER }}/.ssh
         # provision bastion
         docker run --rm --env-file .env -v $PWD/data:/data \
         ${{ github.repository }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} /provision.sh
@@ -68,6 +65,7 @@ jobs:
         echo "[host.docker.internal]:${{ env.SSH_LISTEN_PORT }} "  $(<data/etc/ssh/ssh_host_rsa_key.pub) >> /tmp/known_hosts
         #
         # copy known_host to client
+        docker wait client
         docker run -d --name client --rm --add-host host.docker.internal:host-gateway \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} sleep 5
         docker cp /tmp/known_hosts client:/tmp/known_hosts
@@ -89,6 +87,7 @@ jobs:
       run: |
         docker run -d --name server openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         /usr/sbin/sshd -D -e
+        docker wait client
         docker run -t --name client openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} ssh -G
         #
