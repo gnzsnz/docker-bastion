@@ -32,4 +32,4 @@ RUN if [ -n "${APT_PROXY}" ]; then \
     echo "[host.docker.internal]:${SERVER_PORT} "  $(</etc/ssh/ssh_host_rsa_key.pub) >> /home/${USER}/.ssh/known_hosts && \
     echo "[host.docker.internal]:${SERVER_PORT} "  $(</etc/ssh/ssh_host_ed25519_key.pub) >> /home/${USER}/.ssh/known_hosts && \
     echo "[host.docker.internal]:${BASTION_PORT} "  $(</etc/ssh/ssh_host_rsa_key.pub) >> /home/${USER}/.ssh/known_hosts && \
-    echo "[host.docker.internal]:${BASTION_PORT} "  $(</etc/ssh/ssh_host_ed25519_key.pub) >> /home/${USER}/.ssh/known_hosts && \
+    echo "[host.docker.internal]:${BASTION_PORT} "  $(</etc/ssh/ssh_host_ed25519_key.pub) >> /home/${USER}/.ssh/known_hosts
