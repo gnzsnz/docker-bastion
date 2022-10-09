@@ -23,14 +23,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Get enviroment variables
       run: |
         grep -v '#' .env-dist | grep '=' > .env
-        while IFS= read -r line; do 
-          echo $line >> $GITHUB_ENV ; 
+        while IFS= read -r line; do
+          echo $line >> $GITHUB_ENV ;
         done < .env
-    
+
     - name: Build OpenSSH Bastion Docker image
       run: |
         docker build . --file Dockerfile \
@@ -48,9 +48,7 @@ jobs:
         docker run -d --name client --rm --add-host host.docker.internal:host-gateway \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} sleep 5
         # get authorized_keys from client
-        docker cp client:/home/${{ env.USER }}/.ssh/authorized_keys \ 
-        /tmp/authorized_keys
-        
+        docker cp client:/home/${{ env.USER }}/.ssh/authorized_keys /tmp/
 
     - name: Provision and run OpenSSH Bastion
       run: |
@@ -81,7 +79,7 @@ jobs:
           --add-host host.docker.internal:host-gateway \
           --name bastion
           ${{ github.repository }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
-        
+
 
     - name: test bastion
       run: |
@@ -96,4 +94,4 @@ jobs:
         ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} -J ${{ env.USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} ssh -G
         docker logs -t bastion | grep "Accepted publickey for ${{ env.USER }}"
         docker logs -t bastion
-        
+
