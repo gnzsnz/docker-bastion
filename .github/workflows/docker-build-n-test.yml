@@ -5,11 +5,10 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-  env:
-    USER: bastion
-    APT_PROXY:
-    BASTION_PORT: 2222
-    SERVER_PORT: 2022
+env:
+  USER: bastion
+  BASTION_PORT: 2222
+  SERVER_PORT: 2022
 
 jobs:
   build:
