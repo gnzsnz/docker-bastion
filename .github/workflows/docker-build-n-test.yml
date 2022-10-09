@@ -54,10 +54,11 @@ jobs:
     - name: Provision and run OpenSSH Bastion
       run: |
         mkdir -vp data/home/${{ env.USER }}/.ssh
+        docker ps
         # get authorized_keys from client
         docker cp client:/home/${{ env.USER }}/.ssh/authorized_keys \ 
-        data/home/${{ env.USER }}/.ssh/
-        docker cp client:/home/${{ env.USER }}/.ssh/known_hosts data/home/${{ env.USER }}/.ssh/
+        data/home/${{ env.USER }}/.ssh
+        docker cp client:/home/${{ env.USER }}/.ssh/known_hosts data/home/${{ env.USER }}/.ssh
         # provision bastion
         docker run --rm --env-file .env -v $PWD/data:/data \
         ${{ github.repository }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} /provision.sh
