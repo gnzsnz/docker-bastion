@@ -16,6 +16,7 @@ jobs:
       matrix:
         image_os: [focal, jammy]
         runner_os: [20.04, 22.04]
+        server_os: [focal, jammy]
 
     runs-on: ubuntu-${{ matrix.runner_os}}
     continue-on-error: true
@@ -39,13 +40,13 @@ jobs:
     - name: Build server and client test image
       run: |
         docker build test/ --file test/Dockerfile \
-        --build-arg BASE_VERSION=${{ matrix.image_os }} \
-        --tag openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
+        --build-arg BASE_VERSION=${{ matrix.server_os }} \
+        --tag openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }}
 
     - name: Get client authorized keys and server host public keys
       run: |
         docker run -d --name client --rm -v openssh_vol:/home/${{ env.USER }}/.ssh \
-        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} sleep 5
+        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} sleep 5
         # get authorized_keys from client and
         docker cp client:/home/${{ env.USER }}/.ssh/authorized_keys /tmp/
         docker cp client:/etc/ssh/ssh_host_rsa_key.pub /tmp
@@ -71,7 +72,7 @@ jobs:
         #
         # copy known host to client
         docker run -d --name client --rm -v openssh_vol:/home/${{ env.USER }}/.ssh \
-        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} sleep 5
+        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} sleep 5
         #
         docker cp /tmp/known_hosts client:/home/${{ env.USER }}/.ssh
         docker wait client
@@ -87,22 +88,42 @@ jobs:
           --name bastion \
           ${{ github.repository }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
 
-    - name: test bastion
+    - name: run server
       run: |
         docker run -d --name server -p ${{ env.SERVER_PORT }}:22 -v openssh_vol:/home/${{ env.USER }}/.ssh \
-        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} /usr/sbin/sshd -D -e -o LogLevel=VERBOSE
+        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} /usr/sbin/sshd -D -e -o LogLevel=VERBOSE
+
+    - name: test bastion ssh connection
+      run: |
         #
         #docker run --rm --add-host host.docker.internal:host-gateway --name client \
-        #-v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
+        #-v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
         #ssh -v -p ${{ env.SERVER_PORT }} -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || \
         #
         #docker logs -t server
         #
         # through bastion
         docker run --add-host host.docker.internal:host-gateway --name client \
-        -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
+        -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
         ssh -v -p ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
         -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || docker logs -t bastion
+        #
+        docker logs -t bastion
+        echo "> Server logs"
+        docker logs -t server
+
+    - name: Test scp
+      run: |
+        # scp file
+        docker run --add-host host.docker.internal:host-gateway --name client \
+        -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
+        scp  -v -P ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }}  \
+        /etc/passwd ${{ env.USER }}@host.docker.internal:/tmp || docker logs -t bastion
+        # verify it arrived
+        docker run --add-host host.docker.internal:host-gateway --name client \
+        -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
+        ssh -v -p ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
+        -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal cat /tmp/passwd || docker logs -t bastion
         #
         docker logs -t bastion
         echo "> Server logs"
