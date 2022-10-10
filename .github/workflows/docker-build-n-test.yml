@@ -83,19 +83,17 @@ jobs:
       run: |
         docker run -d --name server -p ${{ env.SERVER_PORT }}:22 openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         /usr/sbin/sshd -D -e
-        sudo cat $PWD/data/home/${{ env.USER }}/.ssh/known_hosts
-        sudo ls -lah $PWD/data/home/${{ env.USER }}/.ssh
         #
         docker run -t --rm --add-host host.docker.internal:host-gateway --name client \
         -v  $PWD/data/home/${{ env.USER }}/.ssh:/home/${{ env.USER }}/.ssh \
         -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
-        ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} ssh -V
+        ssh -p ${{ env.SERVER_PORT }} ${{ env.USERS }}@host.docker.internal ssh -V
         #
         # through bastion
         docker run -t --add-host host.docker.internal:host-gateway --name client \
         -v  $PWD/data/home/${{ env.USER }}/.ssh:/home/${{ env.USER }}/.ssh \
         -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
-        ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} \
-        -J ${{ env.USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} ssh -V
+        ssh  -p ${{ env.SERVER_PORT }} -J ${{ env.USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
+        ${{ env.USERS }}@host.docker.internal ssh -V
         docker logs -t bastion | grep "Accepted publickey for ${{ env.USER }}"
         docker logs -t bastion
