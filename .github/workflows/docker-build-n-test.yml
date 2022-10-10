@@ -55,7 +55,6 @@ jobs:
     - name: Provision and run OpenSSH Bastion
       run: |
         mkdir -vp data/home/${{ env.USER }}/.ssh
-        cat /tmp/authorized_keys
         cp -va /tmp/authorized_keys data/home/${{ env.USER }}/.ssh
         # provision bastion
         docker run --rm --env-file .env -v $PWD/data:/data \
@@ -73,8 +72,10 @@ jobs:
         # copy known host to client
         docker run -d --name client --rm -v openssh_vol:/home/${{ env.USER }}/.ssh \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} sleep 5
+        #
         docker cp /tmp/known_hosts client:/home/${{ env.USER }}/.ssh
         docker wait client
+        #
         # run bastion
         docker run -d --env-file .env -p ${{ env.SSH_LISTEN_PORT }}:22 \
           -v $PWD/data/etc/passwd:/etc/passwd:ro \
@@ -91,17 +92,18 @@ jobs:
         docker run -d --name server -p ${{ env.SERVER_PORT }}:22 -v openssh_vol:/home/${{ env.USER }}/.ssh \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} /usr/sbin/sshd -D -e -o LogLevel=VERBOSE
         #
-        docker exec -t server cat /home/${{ env.USER }}/.ssh/authorized_keys
+        #docker run --rm --add-host host.docker.internal:host-gateway --name client \
+        #-v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
+        #ssh -v -p ${{ env.SERVER_PORT }} -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || \
         #
-        docker run --rm --add-host host.docker.internal:host-gateway --name client \
-        -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
-        ssh -v -p ${{ env.SERVER_PORT }} -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || \
-        docker logs -t server
+        #docker logs -t server
         #
         # through bastion
         docker run --add-host host.docker.internal:host-gateway --name client \
         -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         ssh -v -p ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
         -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || docker logs -t bastion
-        docker logs -t bastion | grep "Accepted publickey for ${{ env.USER }}"
+        #
         docker logs -t bastion
+        echo "> Server logs"
+        docker logs -t server
