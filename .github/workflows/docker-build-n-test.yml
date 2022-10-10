@@ -77,8 +77,8 @@ jobs:
 
     - name: test bastion
       run: |
-        docker run -d --name server openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
-        -p ${{ env.SERVER_PORT }}:22 /usr/sbin/sshd -D -e
+        docker run -d --name -p ${{ env.SERVER_PORT }}:22 server openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
+        /usr/sbin/sshd -D -e
         docker wait client
         docker run -t --rm --add-host host.docker.internal:host-gateway --name client \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
