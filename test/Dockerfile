@@ -30,3 +30,4 @@ RUN if [ -n "${APT_PROXY}" ]; then \
     cat /home/${USER}/.ssh/id_ed25519.pub >> /home/${USER}/.ssh/authorized_keys && \
     chown ${USER}:${USER} /home/${USER}/.ssh/id_* && \
     chown ${USER}:${USER} /home/${USER}/.ssh/authorized_keys
+VOLUME ["/home/${USER}/.ssh"]
