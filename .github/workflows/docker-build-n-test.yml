@@ -37,17 +37,17 @@ jobs:
         --build-arg BASE_VERSION=${{ matrix.image_os }} \
         --tag ${{ github.repository }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
 
-    - name: Build server and client image
+    - name: Build server and client test image
       run: |
         docker build test/ --file test/Dockerfile \
         --build-arg BASE_VERSION=${{ matrix.image_os }} \
         --tag openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
 
-    - name: Get client authorized keys
+    - name: Get client authorized keys and server known_hosts
       run: |
         docker run -d --name client --rm --add-host host.docker.internal:host-gateway \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} sleep 5
-        # get authorized_keys from client
+        # get authorized_keys from client and
         docker cp client:/home/${{ env.USER }}/.ssh/authorized_keys /tmp/
         docker cp client:/home/${{ env.USER }}/.ssh/known_hosts /tmp/
 
@@ -62,6 +62,9 @@ jobs:
         # generate bastion known_hosts for client
         echo "[host.docker.internal]:${{ env.SSH_LISTEN_PORT }} "  $(<data/etc/ssh/ssh_host_ed25519_key.pub) >> /tmp/known_hosts
         echo "[host.docker.internal]:${{ env.SSH_LISTEN_PORT }} "  $(<data/etc/ssh/ssh_host_rsa_key.pub) >> /tmp/known_hosts
+        cp /tmp/known_hosts data/home/${{ env.USER }}/.ssh
+        chown --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
+        chmod --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
         #
         # run bastion
         docker run -d --env-file .env -p ${{ env.SSH_LISTEN_PORT }}:22 \
@@ -81,13 +84,15 @@ jobs:
         /usr/sbin/sshd -D -e
         docker wait client
         docker run -t --rm --add-host host.docker.internal:host-gateway --name client \
+        -v  $PWD/data/home/${{ env.USER }}/.ssh:/home/${{ env.USER }}/.ssh \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
-        ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} ssh -G
+        ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} ssh -V
         docker wait client
         #
         # through bastion
         docker run -t --add-host host.docker.internal:host-gateway --name client \
+        -v  $PWD/data/home/${{ env.USER }}/.ssh:/home/${{ env.USER }}/.ssh \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
-        ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} -J ${{ env.USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} ssh -G
+        ssh ${{ env.USERS }}@host.docker.internal -p ${{ env.SERVER_PORT }} -J ${{ env.USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} ssh -V
         docker logs -t bastion | grep "Accepted publickey for ${{ env.USER }}"
         docker logs -t bastion
