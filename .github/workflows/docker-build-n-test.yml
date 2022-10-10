@@ -103,10 +103,10 @@ jobs:
         #docker logs -t server
         #
         # through bastion
-        docker run --add-host host.docker.internal:host-gateway --name client \
+        docker run --rm --add-host host.docker.internal:host-gateway --name client \
         -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
         ssh -v -p ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
-        -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || docker logs -t bastion
+        -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || exit 1
         #
         docker logs -t bastion
         echo "> Server logs"
@@ -115,15 +115,15 @@ jobs:
     - name: Test scp
       run: |
         # scp file
-        docker run --add-host host.docker.internal:host-gateway --name client \
+        docker run --rm --add-host host.docker.internal:host-gateway --name client \
         -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
         scp  -v -P ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }}  \
-        /etc/passwd ${{ env.USER }}@host.docker.internal:/tmp || docker logs -t bastion
+        /etc/passwd ${{ env.USER }}@host.docker.internal:/tmp || exit 1
         # verify it arrived
-        docker run --add-host host.docker.internal:host-gateway --name client \
+        docker run --rm --add-host host.docker.internal:host-gateway --name client \
         -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
         ssh -v -p ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
-        -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal cat /tmp/passwd || docker logs -t bastion
+        -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal cat /tmp/passwd || exit 1
         #
         docker logs -t bastion
         echo "> Server logs"
