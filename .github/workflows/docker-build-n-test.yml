@@ -88,19 +88,19 @@ jobs:
 
     - name: test bastion
       run: |
-        docker run -d --name server -p ${{ env.SERVER_PORT }}:22 openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
-        -v openssh_vol:/home/${{ env.USER }}/.ssh /usr/sbin/sshd -D -e -o LogLevel=VERBOSE
+        docker run -d --name server -p ${{ env.SERVER_PORT }}:22 -v openssh_vol:/home/${{ env.USER }}/.ssh \
+        openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} /usr/sbin/sshd -D -e -o LogLevel=VERBOSE
         #
         docker exec -t server cat /home/${{ env.USER }}/.ssh/authorized_keys
         #
         docker run --rm --add-host host.docker.internal:host-gateway --name client \
-        -v  openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
+        -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         ssh -v -p ${{ env.SERVER_PORT }} -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || \
         docker logs -t server
         #
         # through bastion
         docker run --add-host host.docker.internal:host-gateway --name client \
-        -v  openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
+        -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         ssh -v -p ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
         -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || docker logs -t bastion
         docker logs -t bastion | grep "Accepted publickey for ${{ env.USER }}"
