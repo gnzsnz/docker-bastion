@@ -83,7 +83,8 @@ jobs:
         docker run -d --name server -p ${{ env.SERVER_PORT }}:22 openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         /usr/sbin/sshd -D -e
         docker wait client
-        cat $PWD/data/home/${{ env.USER }}/.ssh/known_hosts
+        sudo cat $PWD/data/home/${{ env.USER }}/.ssh/known_hosts
+        sudo ls -lah $PWD/data/home/${{ env.USER }}/.ssh
         docker run -t --rm --add-host host.docker.internal:host-gateway --name client \
         -v  $PWD/data/home/${{ env.USER }}/.ssh:/home/${{ env.USER }}/.ssh \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
