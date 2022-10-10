@@ -54,6 +54,7 @@ jobs:
     - name: Provision and run OpenSSH Bastion
       run: |
         mkdir -vp data/home/${{ env.USER }}/.ssh
+        cat /tmp/authorized_keys
         cp -va /tmp/authorized_keys data/home/${{ env.USER }}/.ssh
         # provision bastion
         docker run --rm --env-file .env -v $PWD/data:/data \
@@ -83,6 +84,8 @@ jobs:
       run: |
         docker run -d --name server -p ${{ env.SERVER_PORT }}:22 openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         /usr/sbin/sshd -D -e
+        #
+        docker exec -t server cat /home/${{ env.USER }}/.ssh/authorized_keys
         #
         docker run --rm --add-host host.docker.internal:host-gateway --name client \
         -v  $PWD/data/home/${{ env.USER }}/.ssh:/home/${{ env.USER }}/.ssh \
