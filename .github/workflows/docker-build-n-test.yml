@@ -49,6 +49,7 @@ jobs:
         docker cp client:/home/${{ env.USER }}/.ssh/authorized_keys /tmp/
         docker cp client:/etc/ssh/ssh_host_rsa_key.pub /tmp
         docker cp client:/etc/ssh/ssh_host_ed25519_key.pub /tmp
+        docker wait client
 
     - name: Provision and run OpenSSH Bastion
       run: |
