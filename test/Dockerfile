@@ -28,4 +28,5 @@ RUN if [ -n "${APT_PROXY}" ]; then \
     ssh-keygen -N "" -t ed25519 -f /home/${USER}/.ssh/id_ed25519 && \
     cat /home/${USER}/.ssh/id_rsa.pub >> /home/${USER}/.ssh/authorized_keys && \
     cat /home/${USER}/.ssh/id_ed25519.pub >> /home/${USER}/.ssh/authorized_keys && \
-    chown ${USER}:${USER} /home/${USER}/.ssh/id_*
+    chown ${USER}:${USER} /home/${USER}/.ssh/id_* && \
+    chown ${USER}:${USER} /home/${USER}/.ssh/authorized_keys
