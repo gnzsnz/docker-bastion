@@ -84,13 +84,13 @@ jobs:
         docker run -d --name server -p ${{ env.SERVER_PORT }}:22 openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         /usr/sbin/sshd -D -e
         #
-        docker run -t --rm --add-host host.docker.internal:host-gateway --name client \
+        docker run --rm --add-host host.docker.internal:host-gateway --name client \
         -v  $PWD/data/home/${{ env.USER }}/.ssh:/home/${{ env.USER }}/.ssh \
         -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         ssh -p ${{ env.SERVER_PORT }} ${{ env.USERS }}@host.docker.internal ssh -V
         #
         # through bastion
-        docker run -t --add-host host.docker.internal:host-gateway --name client \
+        docker run --add-host host.docker.internal:host-gateway --name client \
         -v  $PWD/data/home/${{ env.USER }}/.ssh:/home/${{ env.USER }}/.ssh \
         -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} \
         ssh  -p ${{ env.SERVER_PORT }} -J ${{ env.USERS }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
