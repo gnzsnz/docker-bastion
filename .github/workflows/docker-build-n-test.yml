@@ -62,9 +62,9 @@ jobs:
         # generate bastion known_hosts for client
         echo "[host.docker.internal]:${{ env.SSH_LISTEN_PORT }} "  $(<data/etc/ssh/ssh_host_ed25519_key.pub) >> /tmp/known_hosts
         echo "[host.docker.internal]:${{ env.SSH_LISTEN_PORT }} "  $(<data/etc/ssh/ssh_host_rsa_key.pub) >> /tmp/known_hosts
-        cp /tmp/known_hosts data/home/${{ env.USER }}/.ssh
-        chown --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
-        chmod --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
+        sudo cp /tmp/known_hosts data/home/${{ env.USER }}/.ssh
+        sudo chown --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
+        sudo chmod --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
         #
         # run bastion
         docker run -d --env-file .env -p ${{ env.SSH_LISTEN_PORT }}:22 \
