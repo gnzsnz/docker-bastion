@@ -93,6 +93,11 @@ jobs:
         docker run -d --name server -p ${{ env.SERVER_PORT }}:22 -v openssh_vol:/home/${{ env.USER }}/.ssh \
         openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} /usr/sbin/sshd -D -e -o LogLevel=VERBOSE
 
+    - name: Confirm bastion and ssh server are running
+      run: |
+        timeout 1 bash -c '</dev/tcp/0.0.0.0/${{ env.SSH_LISTEN_PORT }} && echo "SSH Bastion running" || echo "Bastion Port is closed"' || echo "Bastion Connection timeout"
+        timeout 1 bash -c '</dev/tcp/0.0.0.0/${{ env.SERVER_PORT }} && echo "SSH Server running" || echo "SSH Port is closed"' || echo "SSH Connection timeout"
+
     - name: test bastion ssh connection
       run: |
         #
@@ -106,7 +111,7 @@ jobs:
         docker run --rm --add-host host.docker.internal:host-gateway --name client \
         -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
         ssh -v -p ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
-        -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || exit 1
+        -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal ssh -V || $(docker logs -t bastion && exit 1)
         #
         docker logs -t bastion
         echo "> Server logs"
@@ -118,12 +123,12 @@ jobs:
         docker run --rm --add-host host.docker.internal:host-gateway --name client \
         -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
         scp  -v -P ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }}  \
-        /etc/passwd ${{ env.USER }}@host.docker.internal:/tmp || exit 1
+        /etc/passwd ${{ env.USER }}@host.docker.internal:/tmp || $(docker logs -t bastion && exit 1)
         # verify it arrived
         docker run --rm --add-host host.docker.internal:host-gateway --name client \
         -v openssh_vol:/home/${{ env.USER }}/.ssh -u bastion openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
         ssh -v -p ${{ env.SERVER_PORT }} -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
-        -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal cat /tmp/passwd || exit 1
+        -i /home/${{ env.USER }}/.ssh/id_rsa ${{ env.USER }}@host.docker.internal cat /tmp/passwd || $(docker logs -t bastion && exit 1)
         #
         docker logs -t bastion
         echo "> Server logs"
