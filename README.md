@@ -99,22 +99,28 @@ services:
     build:
       context: .
       args:
-        APT_PROXY: $APT_PROXY
-    image: gnzsnz/bastion:202208
+        APT_PROXY: ${APT_PROXY}
+        BASE_VERSION: ${BASE_VERSION}
+    image: gnzsnz/bastion:${IMAGE_VERSION}-${BASE_VERSION}
     container_name: bastion
     hostname: bastion
     restart: unless-stopped
     ports:
-      - $SSH_LISTEN_PORT:$SSH_INNER_PORT
+      - ${SSH_LISTEN_PORT}:${SSH_INNER_PORT}
+    # optional
+    # dns: ${DNS}
+    #extra_hosts:
+    #  - host 10.10.0.5
     environment:
-      - USERS=$USERS
-      - USER_SHELL=$USER_SHELL
-      - TOTP_ENABLED=$TOTP_ENABLED
-      - TOTP_ISSUER=$TOTP_ISSUER
-      - TOTP_QR_ENCODE=$TOTP_QR_ENCODE
-      - CA_ENABLED=$CA_ENABLED
-      - SSHD_HOST_CERT=$SSHD_HOST_CERT
-      - SSHD_USER_CA=$SSHD_USER_CA
+      - USERS=${USERS}
+      - USER_SHELL=${USER_SHELL}
+      - TOTP_ENABLED=${TOTP_ENABLED}
+      - TOTP_ISSUER=${TOTP_ISSUER}
+      - TOTP_QR_ENCODE=${TOTP_QR_ENCODE}
+      - CA_ENABLED=${CA_ENABLED}
+      - SSHD_HOST_CERT=${SSHD_HOST_CERT}
+      - SSHD_USER_CA=${SSHD_USER_CA}
+      - BANNER_ENABLED=${BANNER_ENABLED}
     volumes:
       - $PWD/data/etc/passwd:/etc/passwd:ro
       - $PWD/data/etc/shadow:/etc/shadow:ro
@@ -197,15 +203,6 @@ Edit your docker-compose.yml file like this
       - $PWD/data/etc/ssh:/etc/ssh:ro
       - $PWD/data/home:/home # remove :ro
 ```
-
-## Use LDAP for authorized keys storge
-
-Usually you would store public keys in `~/.ssh/authorized_keys`, this comes with disadvantges. Each user needs to move around their authorized keys with 
-
-http://pig.made-it.com/ldap-openssh.html
-https://warlord0blog.wordpress.com/2020/05/16/ssh-authorized_keys-and-ldap/
-
-https://openssh-ldap-pubkey.readthedocs.io/en/latest/openldap.html
 
 ## Use a certificate authority
 
