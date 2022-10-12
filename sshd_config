@@ -1,6 +1,8 @@
 # https://infosec.mozilla.org/guidelines/openssh
 # https://manpages.ubuntu.com/manpages/jammy/en/man5/sshd_config.5.html
 
+Include /etc/ssh/sshd_config.d/*.conf
+
 Port 22
 ListenAddress 0.0.0.0
 
@@ -21,7 +23,7 @@ ForceCommand /usr/sbin/nologin
 # Supported HostKey algorithms by order of preference.
 HostKey /etc/ssh/ssh_host_ed25519_key
 HostKey /etc/ssh/ssh_host_rsa_key
-ModuliFile /etc/ssh/moduli
+#ModuliFile /etc/ssh/moduli
 # RevokedKeys /etc/ssh/revoked_keys
 
 # session settings
@@ -54,7 +56,8 @@ LogLevel VERBOSE
 AllowGroups ssh-bastion
 
 # Restrict supported key exchange, cipher, and MAC algorithms
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,sntrup761x25519-sha512@openssh.com,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
+# sntrup761x25519-sha512@openssh.com not supported in focal
 
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
 

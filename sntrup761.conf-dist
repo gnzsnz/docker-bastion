@@ -1,0 +1,4 @@
+# sntrup761.conf
+# Include file for sntrup761x25519 support
+
+KexAlgorithms +sntrup761x25519-sha512@openssh.com
