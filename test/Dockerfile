@@ -6,8 +6,6 @@ ARG USER_ID=1000
 ARG USER_GID=1000
 ARG USER=bastion
 ARG APT_PROXY=
-ARG BASTION_PORT=2222
-ARG SERVER_PORT=2022
 RUN if [ -n "${APT_PROXY}" ]; then \
       echo 'Acquire::http { Proxy "'${APT_PROXY}'"; }'  \
       | tee /etc/apt/apt.conf.d/01proxy \
@@ -29,7 +27,5 @@ RUN if [ -n "${APT_PROXY}" ]; then \
     cat /home/${USER}/.ssh/id_rsa.pub >> /home/${USER}/.ssh/authorized_keys && \
     cat /home/${USER}/.ssh/id_ed25519.pub >> /home/${USER}/.ssh/authorized_keys && \
     chown ${USER}:${USER} /home/${USER}/.ssh/id_* && \
-    echo "[host.docker.internal]:${SERVER_PORT} "  $(</etc/ssh/ssh_host_rsa_key.pub) >> /home/${USER}/.ssh/known_hosts && \
-    echo "[host.docker.internal]:${SERVER_PORT} "  $(</etc/ssh/ssh_host_ed25519_key.pub) >> /home/${USER}/.ssh/known_hosts && \
-    echo "[host.docker.internal]:${BASTION_PORT} "  $(</etc/ssh/ssh_host_rsa_key.pub) >> /home/${USER}/.ssh/known_hosts && \
-    echo "[host.docker.internal]:${BASTION_PORT} "  $(</etc/ssh/ssh_host_ed25519_key.pub) >> /home/${USER}/.ssh/known_hosts
+    chown ${USER}:${USER} /home/${USER}/.ssh/authorized_keys
+VOLUME ["/home/${USER}/.ssh"]
