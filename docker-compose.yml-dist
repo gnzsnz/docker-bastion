@@ -5,7 +5,8 @@ services:
       context: .
       args:
         APT_PROXY: ${APT_PROXY}
-    image: gnzsnz/bastion:${IMAGE_VERSION}
+        BASE_VERSION: ${BASE_VERSION}
+    image: gnzsnz/bastion:${IMAGE_VERSION}-${BASE_VERSION}
     container_name: bastion
     hostname: bastion
     restart: unless-stopped
