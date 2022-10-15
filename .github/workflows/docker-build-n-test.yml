@@ -41,20 +41,22 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: false
+          load: true
           context: .
-          build-args:
-            BASE_VERSION: ${env.BASE_VERSION}
-            IMAGE_VERSION: ${env.IMAGE_VERSION}
+          build-args: |
+            BASE_VERSION=${{ env.BASE_VERSION }}
+            IMAGE_VERSION=${{ env.IMAGE_VERSION }}
           tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
 
       - name: Build server and client test image
         uses: docker/build-push-action@v3
         with:
           push: false
+          load: true
           context: test/
           file: test/Dockerfile
-          build-args:
-            BASE_VERSION: ${env.BASE_VERSION}
+          build-args: |
+            BASE_VERSION=${{ env.BASE_VERSION }}
           tags: openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }}
 
       - name: Get client authorized keys and server host public keys
@@ -73,7 +75,7 @@ jobs:
           cp -va /tmp/authorized_keys data/home/${{ env.USER }}/.ssh
           # Provision OpenSSH Bastion
           docker run --rm --env-file .env -v $PWD/data:/data \
-          ${{ github.repository }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} /provision.sh
+          ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} /provision.sh
 
       - name: Generate bastion known_hosts for client
         run: |

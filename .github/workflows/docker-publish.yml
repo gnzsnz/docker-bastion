@@ -5,7 +5,6 @@ on:
     types: [published]
 
 env:
-  USER: bastion
   IMAGE_NAME: gnzsnz/bastion
 
 jobs:
@@ -62,9 +61,9 @@ jobs:
         with:
           context: .
           push: true
-          build-args:
-            BASE_VERSION: ${env.BASE_VERSION}
-            IMAGE_VERSION: ${env.IMAGE_VERSION}
+          build-args: |
+            BASE_VERSION=${env.BASE_VERSION}
+            IMAGE_VERSION=${env.IMAGE_VERSION}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
