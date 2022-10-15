@@ -3,15 +3,18 @@ services:
   bastion:
     build:
       context: .
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
+        - "linux/arm/v7"
       args:
         APT_PROXY: ${APT_PROXY}
         BASE_VERSION: ${BASE_VERSION}
+        IMAGE_VERSION: ${IMAGE_VERSION}
     image: gnzsnz/bastion:${IMAGE_VERSION}-${BASE_VERSION}
-    container_name: bastion
-    hostname: bastion
     restart: unless-stopped
     ports:
-      - ${SSH_LISTEN_PORT}:${SSH_INNER_PORT}
+      - ${SSH_LISTEN_PORT}:22
     # optional
     # dns: ${DNS}
     #extra_hosts:
