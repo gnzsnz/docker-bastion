@@ -3,6 +3,7 @@ FROM ubuntu:${BASE_VERSION:-latest}
 
 ARG BASE_VERSION
 ARG APT_PROXY
+ARG IMAGE_VERSION
 RUN if [ -n "$APT_PROXY" ]; then \
       echo 'Acquire::http { Proxy "'$APT_PROXY'"; }'  \
       | tee /etc/apt/apt.conf.d/01proxy \
@@ -37,3 +38,9 @@ HEALTHCHECK --interval=30m --timeout=15s --start-period=10s \
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/sbin/sshd", "-D", "-e"]
+
+LABEL org.opencontainers.image.source=https://github.com/gnzsnz/docker-bastion.git
+LABEL org.opencontainers.image.url=https://hub.docker.com/r/gnzsnz/bastion
+LABEL org.opencontainers.image.description="OpenSSH Bastion container"
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.version=${IMAGE_VERSION}-${BASE_VERSION}
