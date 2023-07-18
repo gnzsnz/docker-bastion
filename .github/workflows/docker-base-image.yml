@@ -13,10 +13,11 @@ jobs:
     check_base:
         runs-on: ubuntu-latest
         steps:
+
             - name: Check if update available
-            id: check
-            uses: lucacome/docker-image-update-checker@v1
-            with:
+              id: check
+              uses: lucacome/docker-image-update-checker@v1
+              with:
                 base-image: ${{ env.BASE_IMAGE }}
                 image: ${{ env.IMAGE_NAME}}
                 platforms: ${{ env.PLATFORMS }}
@@ -28,37 +29,37 @@ jobs:
         steps:
 
             - name: Create an Issue
-            uses: JasonEtco/create-an-issue@v2
-            env:
+              uses: JasonEtco/create-an-issue@v2
+              env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 ISSUE_TITLE: New docker base image
                 ISSUE_TEXT: Please verify workflow run
                 ISSUE_LABEL: docker_base_image
-            with:
+              with:
                 update_existing: true
                 search_existing: open
 
             - name: Checkout
-            uses: actions/checkout@v3
+              uses: actions/checkout@v3
         
             - name: Get enviroment variables
-            run: |
+              run: |
                 grep -v '#' .env-dist | grep '=' > .env
                 while IFS= read -r line; do
                     echo $line >> $GITHUB_ENV ;
                 done < .env
 
             - name: Set up QEMU
-            uses: docker/setup-qemu-action@v2
-            with:
+              uses: docker/setup-qemu-action@v2
+              with:
                 platforms: ${{ env.PLATFORMS }}
 
             - name: Set up Docker Buildx
-            uses: docker/setup-buildx-action@v2
+              uses: docker/setup-buildx-action@v2
 
             - name: Build Docker image
-            uses: docker/build-push-action@v4
-            with:
+              uses: docker/build-push-action@v4
+              with:
                 push: false
                 load: true
                 context: .
