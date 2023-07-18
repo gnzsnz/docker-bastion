@@ -38,6 +38,7 @@ jobs:
               with:
                 update_existing: true
                 search_existing: open
+                filename: .github/base-image-issue-template.md
 
             - name: Checkout
               uses: actions/checkout@v3
