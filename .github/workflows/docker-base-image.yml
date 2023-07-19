@@ -8,7 +8,7 @@ on:
 env:
     IMAGE_NAME: gnzsnz/bastion:latest
     BASE_IMAGE: ubuntu:jammy
-    PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
+    PLATFORMS: linux/amd64,linux/arm64,linux/arm
 
 jobs:
     check_base:
