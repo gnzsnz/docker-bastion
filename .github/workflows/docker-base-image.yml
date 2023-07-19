@@ -3,7 +3,7 @@ name: Check docker image
 on:    
   schedule:
     - cron:  '20 4 * * *' # every day at 420 am
-  worflow_dispatch:
+  workflow_dispatch:
 
 env:
     IMAGE_NAME: gnzsnz/bastion:latest
