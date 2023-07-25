@@ -1,6 +1,6 @@
 name: Check docker image
 
-on:    
+on:
   schedule:
     - cron:  '20 4 * * *' # every day at 420 am
   workflow_dispatch:
@@ -52,7 +52,7 @@ jobs:
 
           - name: Checkout
             uses: actions/checkout@v3
-      
+
           - name: Get enviroment variables
             run: |
               grep -v '#' .env-dist | grep '=' > .env

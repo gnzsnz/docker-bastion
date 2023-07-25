@@ -21,3 +21,5 @@
 .LSOverride
 # Thumbnails
 ._*
+# vscode
+.vscode
