@@ -37,14 +37,14 @@ jobs:
             _run_out="dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
             
             # run command
-            current_ver=$(docker run -d --rm $_image bash -c $_run | tail -1)
+            current_ver=$(docker run -d --rm $_image bash -c "$_run" | tail -1 | cut -d ' ' -f 1 )
 
             # command for 2nd run after update
-            _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'| sha512sum"
-            _2ndrun_out="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
+            _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get upgrade -qy && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'| sha512sum"
+            _2ndrun_out="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get upgrade -qy && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
 
             # 2nd run
-            new_ver=$(docker run -d --rm $_image bash -c $_2ndrun | tail -1)
+            new_ver=$(docker run -d --rm $_image bash -c "$_2ndrun" | tail -1 | cut -d ' ' -f 1 )
 
             # save signature
             echo "current_ver=$current_ver" >> $GITHUB_OUTPUT
@@ -55,8 +55,8 @@ jobs:
             else
               echo "need_update=true" >> $GITHUB_OUTPUT
               # save output
-              current_out=$(docker run --rm $_image bash -c $_run_out)
-              new_out=$(docker run --rm $_image bash -c $_2ndrun_out)
+              current_out=$(docker run --rm $_image bash -c "$_run_out")
+              new_out=$(docker run --rm $_image bash -c "$_2ndrun_out")
               # save
               echo "current_out=$current_out" >> $GITHUB_OUTPUT
               echo "new_out=$new_out" >> $GITHUB_OUTPUT
