@@ -62,6 +62,8 @@ jobs:
               echo "new_out=$new_out" >> $GITHUB_OUTPUT
             fi
 
+            echo $GITHUB_OUTPUT
+
         - name: Create issue
           if: ${{ steps.check_update.outputs.need_update == 'true' }}
           env:
