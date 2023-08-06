@@ -1,6 +1,8 @@
 name: dpkg update checker
 
 on:
+  schedule:
+    - cron:  '20 4 * * *' # every day at 420 am
   workflow_dispatch:
 
 env:
