@@ -37,13 +37,13 @@ jobs:
             
             # run command
             current_out=$(docker run -d --rm $_image bash -c $_run)
-            current_ver=$(sha512 current_version.out)
+            current_ver=$(sha512sum current_version.out)
 
             # command for 2nd run after update
             _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'| tee new_version.out"
             # 2nd run
             new_out=$(docker run -d --rm $_image bash -c $_2ndrun)
-            new_ver=$(sha512 new_version.out)
+            new_ver=$(sha512sum new_version.out)
 
             # save output
             echo "current_out=$current_out" >> $GITHUB_OUTPUT
