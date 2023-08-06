@@ -43,7 +43,7 @@ jobs:
             _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
             # 2nd run
             new_out=$(docker run -d --rm $_image bash -c $_2ndrun)
-            new_ver= $(echo $new_out | sha512sum)
+            new_ver=$(echo $new_out | sha512sum)
             # save output
             echo "current_out=$current_out" >> $GITHUB_OUTPUT
             echo "new_out=$new_out" >> $GITHUB_OUTPUT
