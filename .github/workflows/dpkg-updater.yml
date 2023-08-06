@@ -33,26 +33,33 @@ jobs:
             # image to use
             _image=${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
             # command to run
-            _run="dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'|tee current_version.out"
+            _run="dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'|sha512sum"
+            _run_out="dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
             
             # run command
-            current_out=$(docker run -d --rm $_image bash -c $_run)
-            current_ver=$(sha512sum current_version.out)
+            current_ver=$(docker run --rm $_image bash -c $_run | tail -1)
 
             # command for 2nd run after update
-            _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'| tee new_version.out"
-            # 2nd run
-            new_out=$(docker run -d --rm $_image bash -c $_2ndrun)
-            new_ver=$(sha512sum new_version.out)
+            _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'| sha512sum"
+            _2ndrun_out="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
 
-            # save output
-            echo "current_out=$current_out" >> $GITHUB_OUTPUT
-            echo "new_out=$new_out" >> $GITHUB_OUTPUT
+            # 2nd run
+            new_ver=$(docker run --rm $_image bash -c $_2ndrun | tail -1)
+
+            # save signature
+            echo "current_ver=$current_ver" >> $GITHUB_OUTPUT
+            echo "new_ver=$new_ver" >> $GITHUB_OUTPUT
             # check update
             if [ $current_ver==$new_ver ]; then
               echo "need_update=false" >> $GITHUB_OUTPUT
             else
               echo "need_update=true" >> $GITHUB_OUTPUT
+              # save output
+              current_out=$(docker run --rm $_image bash -c $_run_out)
+              new_out=$(docker run --rm $_image bash -c $_2ndrun_out)
+              # save
+              echo "current_out=$current_out" >> $GITHUB_OUTPUT
+              echo "new_out=$new_out" >> $GITHUB_OUTPUT
             fi
 
         - name: Create issue
