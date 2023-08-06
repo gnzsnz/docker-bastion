@@ -1,0 +1,60 @@
+name: dpkg update checker
+
+on:
+  workflow_dispatch:
+
+env:
+  SEARCH_FOR: openssh-server openssh-sftp-server openssh-client libcrypt1 libssl3
+  SEARCH_TERM: 'Depends:\|Version:'
+  IMAGE_NAME: gnzsnz/bastion
+
+jobs:
+  checkupdate:
+      name: Check for dpkg updates
+      runs-on: ubuntu-22.04
+      strategy:
+        matrix:
+          image_os: [focal, jammy]
+
+      steps:
+        - name: Get enviroment variables
+          run: |
+            grep -v '#' .env-dist | grep '=' > .env
+            while IFS= read -r line; do
+              echo $line >> $GITHUB_ENV ;
+            done < .env
+            
+        - name: update needed
+          id: check_update
+          run: |
+            # image to use
+            _image=${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
+            # command to run
+            _run="dpkg -s ${{ env.SEARCH_FOR }} | grep ${{ env.SEARCH_TERM }}"
+            
+            # run command
+            current_out=$(docker run -d --rm $_image bash -c $_run)
+            current_ver=$(echo $current_out | sha512sum)
+
+            # command for 2nd run after update
+            _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep ${{ env.SEARCH_TERM }}"
+            # 2nd run
+            new_out=$(docker run -d --rm $_image bash -c $_2ndrun)
+            new_ver= $(echo $new_out | sha512sum)
+            # save output
+            echo "current_out=$current_out" >> $GITHUB_OUTPUT
+            echo "new_out=$new_out" >> $GITHUB_OUTPUT
+            # check update
+            if [ $current_ver==$new_ver ]; then
+              echo "need_update=false" >> $GITHUB_OUTPUT
+            else
+              echo "need_update=true" >> $GITHUB_OUTPUT
+            fi
+
+        - name: Create issue
+          if: ${{ steps.check_update.outputs.need_update == 'true' }}
+          env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            gh issue create -t "dpkg updates found" \
+            -b "updates found, review differences: \n ${{ steps.check_update.outputs.current_out }}  \n\n ${{ steps.check_update.outputs.new_out }}"

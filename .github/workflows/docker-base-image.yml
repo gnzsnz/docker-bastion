@@ -31,13 +31,6 @@ jobs:
         if: needs.check_base.outputs.needs-updating == 'true'
         steps:
 
-          - name: Get enviroment variables
-            run: |
-              grep -v '#' .env-dist | grep '=' > .env
-              while IFS= read -r line; do
-                echo $line >> $GITHUB_ENV ;
-              done < .env
-
           - name: Create an Issue
             uses: JasonEtco/create-an-issue@v2
             env:
