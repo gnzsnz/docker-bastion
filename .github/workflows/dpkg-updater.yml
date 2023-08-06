@@ -33,14 +33,14 @@ jobs:
             # image to use
             _image=${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
             # command to run
-            _run="dpkg -s ${{ env.SEARCH_FOR }} | grep ${{ env.SEARCH_TERM }}"
+            _run="dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
             
             # run command
             current_out=$(docker run -d --rm $_image bash -c $_run)
             current_ver=$(echo $current_out | sha512sum)
 
             # command for 2nd run after update
-            _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep ${{ env.SEARCH_TERM }}"
+            _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
             # 2nd run
             new_out=$(docker run -d --rm $_image bash -c $_2ndrun)
             new_ver= $(echo $new_out | sha512sum)
