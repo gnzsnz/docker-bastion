@@ -33,17 +33,18 @@ jobs:
             # image to use
             _image=${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
             # command to run
-            _run="dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
+            _run="dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'|tee current_version.out"
             
             # run command
             current_out=$(docker run -d --rm $_image bash -c $_run)
-            current_ver=$(echo $current_out | sha512sum)
+            current_ver=$(sha512 current_version.out)
 
             # command for 2nd run after update
-            _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
+            _2ndrun="apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y && dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'| tee new_version.out"
             # 2nd run
             new_out=$(docker run -d --rm $_image bash -c $_2ndrun)
-            new_ver=$(echo $new_out | sha512sum)
+            new_ver=$(sha512 new_version.out)
+
             # save output
             echo "current_out=$current_out" >> $GITHUB_OUTPUT
             echo "new_out=$new_out" >> $GITHUB_OUTPUT
@@ -59,5 +60,5 @@ jobs:
           env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
-            gh issue create -t "dpkg updates found" \
+            gh issue create -t "dpkg updates found ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}" \
             -b "updates found, review differences: \n ${{ steps.check_update.outputs.current_out }}  \n\n ${{ steps.check_update.outputs.new_out }}"
