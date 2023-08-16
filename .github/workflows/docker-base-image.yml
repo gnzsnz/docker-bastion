@@ -33,18 +33,13 @@ jobs:
 
           - name: Checkout
             uses: actions/checkout@v3
-            
-          - name: Create an Issue
-            uses: JasonEtco/create-an-issue@v2
+
+          - name: Create issue
             env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              ISSUE_TITLE: New docker base image
-              ISSUE_TEXT: Please verify workflow run
-              ISSUE_LABEL: docker_base_image
-            with:
-              update_existing: true
-              search_existing: open
-              filename: .github/base-image-issue-template.md
+              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            run: |
+              gh issue create -t "Base images updates found for ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}" \
+              -b "A new build&publish might be needed."
 
           - name: Get enviroment variables
             run: |
