@@ -31,6 +31,9 @@ jobs:
         if: needs.check_base.outputs.needs-updating == 'true'
         steps:
 
+          - name: Checkout
+            uses: actions/checkout@v3
+            
           - name: Create an Issue
             uses: JasonEtco/create-an-issue@v2
             env:
@@ -42,9 +45,6 @@ jobs:
               update_existing: true
               search_existing: open
               filename: .github/base-image-issue-template.md
-
-          - name: Checkout
-            uses: actions/checkout@v3
 
           - name: Get enviroment variables
             run: |
