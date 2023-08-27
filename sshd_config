@@ -12,7 +12,6 @@ X11Forwarding no
 PermitTunnel no
 GatewayPorts no
 # required for jump host to work
-# forwarding is disabled however
 AllowTcpForwarding yes
 AllowStreamLocalForwarding no
 AllowAgentForwarding yes
