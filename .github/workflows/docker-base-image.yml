@@ -34,13 +34,6 @@ jobs:
           - name: Checkout
             uses: actions/checkout@v4
 
-          - name: Create issue
-            env:
-              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            run: |
-              gh issue create -t "Base images updates found for ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}" \
-              -b "A new build&publish might be needed."
-
           - name: Get enviroment variables
             run: |
               grep -v '#' .env-dist | grep '=' > .env
@@ -48,15 +41,35 @@ jobs:
                   echo $line >> $GITHUB_ENV ;
               done < .env
 
+          - name: Create issue
+            env:
+              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            id: create_issue
+            run: |
+              _title="Base images updates found for ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}"
+              _body="A new build&publish might be needed."
+
+              if [ -n $(gh issue list -S "in:title $_title") ]
+              then
+                echo "Issue already exists"
+                echo "first_issue=false" >> $GITHUB_OUTPUT
+              else
+                gh issue create -t $_title -b $_body
+                echo "first_issue=true" >> $GITHUB_OUTPUT
+              fi
+
           - name: Set up QEMU
             uses: docker/setup-qemu-action@v3
+            if: ${{ steps.create_issue.outputs.first_issue == 'true' }}
             with:
               platforms: ${{ env.PLATFORMS }}
 
           - name: Set up Docker Buildx
+            if: ${{ steps.create_issue.outputs.first_issue == 'true' }}
             uses: docker/setup-buildx-action@v3
 
           - name: Build Docker image
+            if: ${{ steps.create_issue.outputs.first_issue == 'true' }}
             uses: docker/build-push-action@v5
             with:
               push: false
