@@ -48,13 +48,15 @@ jobs:
             run: |
               _title="Base images updates found for ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}"
               _body="A new build&publish might be needed."
-
-              if [ -n $(gh issue list -S "in:title $_title") ]
+              
+              exists=$(gh issue list -S "is:issue state:open in:title $_title" | wc -l)
+              
+              if [ -n "$exists" ] && [ "$exists" -gt 0 ]
               then
                 echo "Issue already exists"
                 echo "first_issue=false" >> $GITHUB_OUTPUT
               else
-                gh issue create -t $_title -b $_body
+                gh issue create -t "$_title" -b "$_body"
                 echo "first_issue=true" >> $GITHUB_OUTPUT
               fi
 
