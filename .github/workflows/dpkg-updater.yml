@@ -57,14 +57,14 @@ jobs:
             else
               echo "need_update=true" >> $GITHUB_OUTPUT
               # save output
-              current_out=$(docker run --rm $_image bash -c "$_run_out")
-              new_out=$(docker run --rm $_image bash -c "$_2ndrun_out")
+              #current_out=$(docker run --rm $_image bash -c "$_run_out")
+              #new_out=$(docker run --rm $_image bash -c "$_2ndrun_out")
               # save
-              echo "current_out=$current_out" >> $GITHUB_OUTPUT
-              echo "new_out=$new_out" >> $GITHUB_OUTPUT
+              #echo "current_out=$current_out" >> $GITHUB_OUTPUT
+              #echo "new_out=$new_out" >> $GITHUB_OUTPUT
             fi
 
-            cat $GITHUB_OUTPUT
+            echo "$GITHUB_OUTPUT"
 
         - name: Create issue
           if: ${{ steps.check_update.outputs.need_update == 'true' }}
