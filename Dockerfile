@@ -9,8 +9,9 @@ RUN if [ -n "$APT_PROXY" ]; then \
       | tee /etc/apt/apt.conf.d/01proxy \
     ;fi && \
     apt-get update && \
+    apt-get upgrade && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    openssh-server libpam-google-authenticator qrencode libssl3 libcrypt1 && \
+    openssh-server libpam-google-authenticator qrencode && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir /run/sshd && \
     cp /etc/ssh/sshd_config /etc/ssh/sshd_config-dist && \
