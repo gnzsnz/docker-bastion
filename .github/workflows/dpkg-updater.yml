@@ -64,7 +64,7 @@ jobs:
               #echo "new_out=$new_out" >> $GITHUB_OUTPUT
             fi
 
-            echo "$GITHUB_OUTPUT"
+            cat "$GITHUB_OUTPUT"
 
         - name: Create issue
           if: ${{ steps.check_update.outputs.need_update == 'true' }}
@@ -74,7 +74,7 @@ jobs:
             _title="dpkg updates found ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}"
             _body="updates found, review differences: \n ${{ steps.check_update.outputs.current_out }}  \n\n ${{ steps.check_update.outputs.new_out }}"
 
-            if [ -n $(gh issue list -S "in:title $_title") ]; then
+            if [ $(gh issue list -S "in:title $_title" | wc -l) -gt 0 ]; then
               echo "Issue already exists, waiting for maintainers."
             else
               gh issue create -t $_title -b $_body
