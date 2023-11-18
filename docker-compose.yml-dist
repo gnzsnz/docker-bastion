@@ -18,7 +18,7 @@ services:
     # optional
     # dns: ${DNS}
     #extra_hosts:
-    #  - host 10.10.0.5 
+    #  - host 10.10.0.5
     environment:
       - USERS=${USERS}
       - USER_SHELL=${USER_SHELL}
@@ -35,4 +35,3 @@ services:
       - $PWD/data/etc/group:/etc/group:ro
       - $PWD/data/etc/ssh:/etc/ssh:ro
       - $PWD/data/home:/home:ro
-

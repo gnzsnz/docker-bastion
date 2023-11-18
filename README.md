@@ -298,15 +298,15 @@ A special case that might deserver additional attention is as a *sidecar contain
 
 ```
              >|<   _____________
-__________    |    | Bastion   |      
-| Client | ---|--- | Container | ----\ 
-----------    |    -------------     | 
+__________    |    | Bastion   |
+| Client | ---|--- | Container | ----\
+----------    |    -------------     |
               |     _____________    |
               |     | App       | ---/
               |     | Container |
               |     -------------
               |
-             >|<                      
+             >|<
 
 App to Bastion: ssh -R 8888:localhost:8888 bastion
 Client to Bastion: ssh -L 8888:localhost:8888 bastion

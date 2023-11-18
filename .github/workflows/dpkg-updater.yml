@@ -28,7 +28,7 @@ jobs:
             while IFS= read -r line; do
               echo $line >> $GITHUB_ENV ;
             done < .env
-            
+
         - name: update needed
           id: check_update
           run: |
@@ -37,7 +37,7 @@ jobs:
             # command to run
             _run="dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'|sha512sum"
             _run_out="dpkg -s ${{ env.SEARCH_FOR }} | grep '${{ env.SEARCH_TERM }}'"
-            
+
             # run command
             current_ver=$(docker run --rm $_image bash -c "$_run" | tail -1 | cut -d ' ' -f 1 )
 
@@ -79,4 +79,3 @@ jobs:
             else
               gh issue create -t $_title -b $_body
             fi
-
