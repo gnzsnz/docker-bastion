@@ -77,5 +77,5 @@ jobs:
             if [ $(gh issue list -S "in:title $_title" | wc -l) -gt 0 ]; then
               echo "Issue already exists, waiting for maintainers."
             else
-              gh issue create -t $_title -b $_body
+              gh issue create -t "$_title" -b "$_body"
             fi
