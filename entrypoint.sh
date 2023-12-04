@@ -52,7 +52,7 @@ check_provision() {
 bastion_banner() {
 	# show banner
 	if [ "$BANNER_ENABLED" == "yes" ]; then
-		SSHD_OPT+=(" -o Banner=/bastion_banner.txt")
+		SSHD_OPT+=("-o Banner=/bastion_banner.txt")
 		echo "> Banner enabled"
 		cat /bastion_banner.txt
 	else
@@ -66,9 +66,9 @@ set_totp() {
 	#
 	if [ "$TOTP_ENABLED" == "yes" ]; then
 		declare -a SSHD_TOTP
-		SSHD_TOTP+=(' -o KbdInteractiveAuthentication=yes')
-		SSHD_TOTP+=(' -o AuthenticationMethods=publickey,keyboard-interactive')
-		SSHD_TOTP+=(' -o UsePAM=yes')
+		SSHD_TOTP+=('-o KbdInteractiveAuthentication=yes')
+		SSHD_TOTP+=('-o AuthenticationMethods=publickey,keyboard-interactive')
+		SSHD_TOTP+=('-o UsePAM=yes')
 		SSHD_OPT+=("${SSHD_TOTP[@]}")
 		echo "> TOTP ⌛🔑 enabled"
 	else
@@ -84,10 +84,10 @@ set_CA() {
 		declare -a SSHD_CA
 		# set host certificate
 		[ ! -f "$SSHD_HOST_CERT" ] && SSHD_HOST_CERT='/etc/ssh/ssh_host_ed25519_key-cert.pub'
-		SSHD_CA+=(" -o HostCertificate=$SSHD_HOST_CERT")
+		SSHD_CA+=("-o HostCertificate=$SSHD_HOST_CERT")
 		# set user CA public key
 		[ ! -f "$SSHD_USER_CA" ] && SSHD_USER_CA='/etc/ssh/user_ca.pub'
-		SSHD_CA+=(" -o TrustedUserCAKeys=$SSHD_USER_CA")
+		SSHD_CA+=("-o TrustedUserCAKeys=$SSHD_USER_CA")
 
 		# add to SSHD options
 		SSHD_OPT+=("${SSHD_CA[@]}")
