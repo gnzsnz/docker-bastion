@@ -1,0 +1,36 @@
+services:
+  bastion:
+    build:
+      context: .
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
+        - "linux/arm/v7"
+      args:
+        APT_PROXY: ${APT_PROXY}
+        BASE_VERSION: ${BASE_VERSION}
+        IMAGE_VERSION: ${IMAGE_VERSION}
+    image: gnzsnz/bastion:${IMAGE_VERSION}-${BASE_VERSION}
+    restart: unless-stopped
+    ports:
+      - ${SSH_LISTEN_PORT}:22
+    # optional
+    # dns: ${DNS}
+    #extra_hosts:
+    #  - host 10.10.0.5
+    environment:
+      - USERS=${USERS}
+      - USER_SHELL=${USER_SHELL}
+      - TOTP_ENABLED=${TOTP_ENABLED}
+      - TOTP_ISSUER=${TOTP_ISSUER}
+      - TOTP_QR_ENCODE=${TOTP_QR_ENCODE}
+      - CA_ENABLED=${CA_ENABLED}
+      - SSHD_HOST_CERT=${SSHD_HOST_CERT}
+      - SSHD_USER_CA=${SSHD_USER_CA}
+      - BANNER_ENABLED=${BANNER_ENABLED}
+    volumes:
+      - $PWD/data/etc/passwd:/etc/passwd:ro
+      - $PWD/data/etc/shadow:/etc/shadow:ro
+      - $PWD/data/etc/group:/etc/group:ro
+      - $PWD/data/etc/ssh:/etc/ssh:ro
+      - $PWD/data/home:/home:ro
