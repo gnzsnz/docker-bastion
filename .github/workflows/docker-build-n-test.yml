@@ -119,6 +119,7 @@ jobs:
           docker run -d --name server -p ${{ env.SERVER_PORT }}:22 \
           -v openssh_vol:/home/${{ env.USER }}/.ssh \
           openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} /usr/sbin/sshd -D -e -o LogLevel=VERBOSE
+          sleep 5
 
       - name: Confirm bastion and ssh server are running
         run: |
