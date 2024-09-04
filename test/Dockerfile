@@ -2,11 +2,12 @@ ARG BASE_VERSION
 FROM ubuntu:${BASE_VERSION}
 
 ARG BASE_VERSION
-ARG USER_ID=1000
-ARG USER_GID=1000
+ARG USER_ID=1001
+ARG USER_GID=1001
 ARG USER=bastion
 ARG APT_PROXY=
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# hadolint ignore=DL3008
 RUN if [ -n "${APT_PROXY}" ]; then \
       echo 'Acquire::http { Proxy "'${APT_PROXY}'"; }'  \
       | tee /etc/apt/apt.conf.d/01proxy \
