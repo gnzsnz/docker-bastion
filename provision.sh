@@ -91,7 +91,7 @@ create_users() {
 	# create users from USERS var
 	IFS=','
 	for _user in $USERS; do
-		if ! id "$_user"; then
+		if ! id "$_user" 2>/dev/null; then
 			adduser --disabled-password \
 				--shell "$USER_SHELL" \
 				--quiet \
@@ -175,7 +175,7 @@ set_sshd_config() {
 		ln -sf ${DATA}/etc/ssh /etc/
 	fi
 
-	if ! ls /etc/ssh/ssh_host_*key*; then
+	if ! ls /etc/ssh/ssh_host_*key* 2>/dev/null; then
 		# Dockerfile will delete host keys, create new keys if needed
 		# create host keys
 		echo "> Creating host keys ..."

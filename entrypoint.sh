@@ -105,7 +105,7 @@ commmon_start() {
 
 echo "> SSH Bastion 🐡🏯"
 echo "> Running $*"
-if [ "$(basename "$1")" == "$DAEMON" ]; then
+if [ "$(basename "$1" 2>/dev/null)" == "$DAEMON" ]; then
 	commmon_start
 	echo "> Starting $* ... ${SSHD_OPT[*]}"
 	trap stop SIGINT SIGTERM
