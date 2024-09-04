@@ -21,7 +21,8 @@ RUN if [ -n "${APT_PROXY}" ]; then \
     awk '$5 >= 3071' /etc/ssh/moduli > /etc/ssh/moduli.secure && \
     mv /etc/ssh/moduli.secure /etc/ssh/moduli && \
     groupadd --gid "${USER_GID}" "${USER}" && \
-    useradd -ms /bin/bash --uid ${USER_ID} --gid ${USER_GID} ${USER} && \
+    adduser --quiet --disabled-password --shell /bin/bash --uid ${USER_ID} \
+      --gid ${USER_GID} ${USER} && \
     echo "${USER} ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers && \
     mkdir /home/${USER}/.ssh && \
     ssh-keygen -N "" -f /home/${USER}/.ssh/id_rsa && \
