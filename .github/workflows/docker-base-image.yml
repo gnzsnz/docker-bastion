@@ -7,7 +7,7 @@ on:
 
 env:
     IMAGE_NAME: gnzsnz/bastion:latest
-    BASE_IMAGE: ubuntu:jammy
+    BASE_IMAGE: ubuntu:noble
     PLATFORMS: linux/amd64,linux/arm64,linux/arm
 
 jobs:

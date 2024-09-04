@@ -16,7 +16,7 @@ jobs:
       runs-on: ubuntu-22.04
       strategy:
         matrix:
-          image_os: [focal, jammy]
+          image_os: [noble, jammy]
 
       steps:
         - name: Checkout

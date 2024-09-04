@@ -40,10 +40,8 @@ check_provision() {
 		echo "> checksum FAILED. 🔒 exiting ..."
 		echo "> You might want to provision your data/ dir
     docker run -it --rm --env-file .env \
-      --hostname=sftp \
       -v $PWD/data:/data \
-      --name sftp_provision \
-      gnzsnz/sftp /provision.sh
+      gnzsnz/bastion /provision.sh
     "
 		exit 1
 	fi

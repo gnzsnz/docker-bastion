@@ -55,8 +55,7 @@ LogLevel VERBOSE
 AllowGroups ssh-bastion
 
 # Restrict supported key exchange, cipher, and MAC algorithms
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
-# sntrup761x25519-sha512@openssh.com not supported in focal
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256, sntrup761x25519-sha512@openssh.com
 
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
 

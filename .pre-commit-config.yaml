@@ -19,4 +19,3 @@ repos:
     rev: v2.12.1-beta
     hooks:
       - id: hadolint
-        args: ['--ignore', 'DL3008', '--ignore', 'SC2028']
