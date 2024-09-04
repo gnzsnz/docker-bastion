@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         image_os: [noble, jammy] # bastion docker image OS
-        runner_os: [20.04, 22.04] # CI runner
+        runner_os: [24.04, 22.04] # CI runner
         server_os: [noble, jammy] # server&client OS
 
     runs-on: ubuntu-${{ matrix.runner_os}}
