@@ -2,8 +2,8 @@ ARG BASE_VERSION
 FROM ubuntu:${BASE_VERSION}
 
 ARG BASE_VERSION
-ARG USER_ID=1001
-ARG USER_GID=1001
+ARG USER_ID=1000
+ARG USER_GID=1000
 ARG USER=bastion
 ARG APT_PROXY=
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -20,6 +20,9 @@ RUN if [ -n "${APT_PROXY}" ]; then \
     cp /etc/ssh/sshd_config /etc/ssh/sshd_config-dist && \
     awk '$5 >= 3071' /etc/ssh/moduli > /etc/ssh/moduli.secure && \
     mv /etc/ssh/moduli.secure /etc/ssh/moduli && \
+    if id ubuntu; then \
+      userdel -rf ubuntu \
+    ;fi && \
     groupadd --gid "${USER_GID}" "${USER}" && \
     adduser --quiet --disabled-password --shell /bin/bash --uid ${USER_ID} \
       --gid ${USER_GID} ${USER} && \
