@@ -31,7 +31,9 @@ HostKey /etc/ssh/ssh_host_rsa_key
 MaxSessions 0
 MaxAuthTries 3
 # start:rate:full
-MaxStartups 10:30:30
+MaxStartups 10:30:100
+PerSourceMaxStartups 1
+PerSourceNetBlockSize 32:128
 LoginGraceTime 30
 
 
@@ -56,6 +58,8 @@ AllowGroups ssh-bastion
 
 # Restrict supported key exchange, cipher, and MAC algorithms
 KexAlgorithms sntrup761x25519-sha512@openssh.com,gss-curve25519-sha256-,curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256,gss-group16-sha512-,diffie-hellman-group16-sha512
+
+KexAlgorithms -ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group14-sha256
 
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-gcm@openssh.com,aes128-ctr
 
