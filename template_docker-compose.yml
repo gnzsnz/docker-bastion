@@ -5,7 +5,6 @@ services:
       platforms:
         - "linux/amd64"
         - "linux/arm64"
-        - "linux/arm/v7"
       args:
         APT_PROXY: ${APT_PROXY}
         BASE_VERSION: ${BASE_VERSION}
