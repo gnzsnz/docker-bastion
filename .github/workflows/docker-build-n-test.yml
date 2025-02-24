@@ -1,6 +1,7 @@
 name: OpenSSH Bastion Docker Image CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "master" ]
   pull_request:
