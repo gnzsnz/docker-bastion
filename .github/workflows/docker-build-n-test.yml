@@ -19,7 +19,7 @@ jobs:
         image_os: [focal, jammy] # bastion docker image OS
         server_os: [focal, jammy] # server&client OS
 
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, ubuntu-24.04-arm]
     continue-on-error: true
 
     steps:

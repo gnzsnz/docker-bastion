@@ -15,7 +15,7 @@ jobs:
       matrix:
         image_os: [focal, jammy]
 
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, ubuntu-24.04-arm]
 
     steps:
 
@@ -28,11 +28,6 @@ jobs:
           while IFS= read -r line; do
             echo $line >> $GITHUB_ENV ;
           done < .env
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -69,6 +64,6 @@ jobs:
           build-args: |
             BASE_VERSION=${{ env.BASE_VERSION }}
             IMAGE_VERSION=${{ env.IMAGE_VERSION }}
-          platforms: linux/amd64,linux/arm64
+          #platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
