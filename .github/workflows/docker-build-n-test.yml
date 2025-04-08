@@ -34,12 +34,7 @@ jobs:
             echo $line >> $GITHUB_ENV ;
           done < .env
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
-
-      - name: Set up Docker Buildx
+          - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build OpenSSH Bastion Docker image
@@ -52,7 +47,6 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
             IMAGE_VERSION=${{ env.IMAGE_VERSION }}
           tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
-          platforms: linux/amd64,linux/arm64
 
       - name: Build server and client test image
         uses: docker/build-push-action@v6
@@ -64,7 +58,6 @@ jobs:
           build-args: |
             BASE_VERSION=${{ env.BASE_VERSION }}
           tags: openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }}
-          platforms: linux/amd64,linux/arm64
 
       - name: Get client authorized keys and server host public keys
         run: |
