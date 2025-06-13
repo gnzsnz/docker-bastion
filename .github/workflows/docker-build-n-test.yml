@@ -127,6 +127,23 @@ jobs:
           timeout 1 bash -c '</dev/tcp/0.0.0.0/${{ env.SSH_LISTEN_PORT }} && echo "SSH Bastion running" || echo "Bastion Port is closed"' || echo "Bastion Connection timeout"
           timeout 1 bash -c '</dev/tcp/0.0.0.0/${{ env.SERVER_PORT }} && echo "SSH Server running" || echo "SSH Port is closed"' || echo "SSH Connection timeout"
 
+      - name: Test server ssh connection - no bastion
+        run: |
+          # through bastion
+          docker run --rm --name client -u bastion \
+          --add-host host.docker.internal:host-gateway \
+          -v openssh_vol:/home/${{ env.USER }}/.ssh \
+          openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
+          ssh -v -p ${{ env.SERVER_PORT }} \
+          -i /home/${{ env.USER }}/.ssh/id_rsa \
+          ${{ env.USER }}@host.docker.internal ssh -V \
+          || (docker logs -t server && exit 1)
+          #
+          docker logs -t bastion
+          echo "> Server logs"
+          docker logs -t server
+
+
       - name: Test Bastion ssh connection
         run: |
           # through bastion
