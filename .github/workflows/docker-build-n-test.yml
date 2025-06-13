@@ -117,8 +117,8 @@ jobs:
             --name bastion \
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
           # debug
-          sudo echo $(ls -la data/home/${{ env.USER }}/.ssh)
-          sudo echo $(<data/home/${{ env.USER }}/.ssh/authorized_keys)
+          echo $(sudo ls -la data/home/${{ env.USER }}/.ssh)
+          echo $(sudo cat data/home/${{ env.USER }}/.ssh/authorized_keys)
 
       - name: Run server
         run: |
