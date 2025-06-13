@@ -74,8 +74,8 @@ jobs:
         run: |
           mkdir -vp data/home/${{ env.USER }}/.ssh
           cp -va /tmp/authorized_keys data/home/${{ env.USER }}/.ssh
-          chown 1000 data/home/${{ env.USER }}/.ssh/authorized_keys
-          chmod 600 data/home/${{ env.USER }}/.ssh/authorized_keys
+          sudo chown 1000 data/home/${{ env.USER }}/.ssh/authorized_keys
+          sudo chmod 600 data/home/${{ env.USER }}/.ssh/authorized_keys
           # Provision OpenSSH Bastion
           docker run --rm --env-file .env -v $PWD/data:/data \
           ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }} /provision.sh
