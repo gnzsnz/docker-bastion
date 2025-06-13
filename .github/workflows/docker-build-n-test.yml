@@ -114,6 +114,8 @@ jobs:
             --add-host host.docker.internal:host-gateway \
             --name bastion \
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
+          # temp
+          echo $(<$PWD/data/home/bastion/.ssh/id_rsa.pub)
 
       - name: Run server
         run: |
