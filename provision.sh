@@ -147,6 +147,7 @@ set_keys_permissions() {
 			fi
 			if [ -f "$DATA/home/$_user/.ssh/authorized_keys" ]; then
 				chmod 640 "$DATA/home/$_user/.ssh/authorized_keys"
+				chown "$_user:$_user" "$DATA/home/$_user/.ssh/authorized_keys"
 				echo "> authorized_keys permissions set for $_user"
 			else
 				echo "> No authorized_keys for $_user"
