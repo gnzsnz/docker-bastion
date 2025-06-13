@@ -95,6 +95,9 @@ jobs:
           sudo cp /tmp/known_hosts data/home/${{ env.USER }}/.ssh
           sudo chown --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
           sudo chmod --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
+          # debug
+          echo $(< data/home/${{ env.USER }}/.ssh/authorized_keys)
+          echo $(< /tmp/authorized_keys)
 
       - name: Copy known host to client
         run: |

@@ -28,7 +28,7 @@ RUN if [ -n "${APT_PROXY}" ]; then \
       --gid ${USER_GID} ${USER} && \
     echo "${USER} ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers && \
     mkdir /home/${USER}/.ssh && \
-    ssh-keygen -N "" -f /home/${USER}/.ssh/id_rsa && \
+    ssh-keygen -N "" -t rsa -f /home/${USER}/.ssh/id_rsa && \
     ssh-keygen -N "" -t ed25519 -f /home/${USER}/.ssh/id_ed25519 && \
     cat /home/${USER}/.ssh/id_rsa.pub >> /home/${USER}/.ssh/authorized_keys && \
     cat /home/${USER}/.ssh/id_ed25519.pub >> /home/${USER}/.ssh/authorized_keys && \
