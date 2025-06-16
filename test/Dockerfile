@@ -1,7 +1,7 @@
-ARG BASE_VERSION
+ARG BASE_VERSION=noble
 FROM ubuntu:${BASE_VERSION}
 
-ARG BASE_VERSION
+ARG BASE_VERSION=noble
 ARG USER_ID=1000
 ARG USER_GID=1000
 ARG USER=bastion
@@ -34,4 +34,7 @@ RUN if [ -n "${APT_PROXY}" ]; then \
     cat /home/${USER}/.ssh/id_ed25519.pub >> /home/${USER}/.ssh/authorized_keys && \
     chown ${USER}:${USER} /home/${USER}/.ssh/id_* && \
     chown ${USER}:${USER} /home/${USER}/.ssh/authorized_keys
+
 VOLUME ["/home/${USER}/.ssh"]
+
+CMD ["/usr/sbin/sshd", "-D", "-e" , "-o", "LogLevel=VERBOSE"]

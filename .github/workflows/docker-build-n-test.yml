@@ -142,7 +142,7 @@ jobs:
           -v openssh_vol:/home/${{ env.USER }}/.ssh \
           openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
           ssh -v -p ${{ env.SERVER_PORT }} \
-          -i /home/${{ env.USER }}/.ssh/id_rsa \
+          -i /home/${{ env.USER }}/.ssh/id_ed25519 \
           ${{ env.USER }}@host.docker.internal ssh -V \
           || (docker logs -t server && exit 1)
           #
@@ -160,7 +160,7 @@ jobs:
           openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }} \
           ssh -v -p ${{ env.SERVER_PORT }} \
           -J ${{ env.USER }}@host.docker.internal:${{ env.SSH_LISTEN_PORT }} \
-          -i /home/${{ env.USER }}/.ssh/id_rsa \
+          -i /home/${{ env.USER }}/.ssh/id_ed25519 \
           ${{ env.USER }}@host.docker.internal ssh -V \
           || (docker logs -t bastion && exit 1)
           #
