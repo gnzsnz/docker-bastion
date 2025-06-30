@@ -97,6 +97,8 @@ create_users() {
 				--quiet \
 				--gecos "$_user" "$_user"
 			usermod -a -G ssh-bastion "$_user"
+			usermod -p '*' "$_user" # disable password login
+			echo "> User $_user created"
 		fi
 		# TOTP provision
 		_totp_ga="/home/$_user/.google_authenticator"
@@ -186,6 +188,7 @@ set_sshd_config() {
 
 	echo "> Setting /etc/ssh/* permissions and ownership"
 	chown root:root "$DATA"/etc/ssh/
+	chown root:root -R "$DATA"/etc/ssh/*
 	# set 644 onwership, 600 for private key
 	find "$DATA"/etc/ssh/ -type f -exec chmod 644 {} \;
 	chmod 600 "$DATA"/etc/ssh/ssh_host*key
@@ -233,8 +236,8 @@ set_sshd_config
 echo "> sshd config set"
 
 echo "> Host key 🔑 fingerprints"
-ssh-keygen -lf $DATA/etc/ssh/ssh_host_rsa_key
-ssh-keygen -lf $DATA/etc/ssh/ssh_host_ed25519_key
+[ -f $DATA/etc/ssh/ssh_host_rsa_key ] && ssh-keygen -lf $DATA/etc/ssh/ssh_host_rsa_key
+[ -f $DATA/etc/ssh/ssh_host_ed25519_key ] && ssh-keygen -lf $DATA/etc/ssh/ssh_host_ed25519_key
 
 set_checksum
 echo "> Checksum set 🔑"

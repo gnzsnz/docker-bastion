@@ -95,8 +95,6 @@ jobs:
           sudo cp /tmp/known_hosts data/home/${{ env.USER }}/.ssh
           sudo chown --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
           sudo chmod --reference=data/home/${{ env.USER }}/.ssh/authorized_keys data/home/${{ env.USER }}/.ssh/known_hosts
-          # debug
-          echo $(</tmp/authorized_keys)
 
       - name: Copy known host to client
         run: |
@@ -118,9 +116,6 @@ jobs:
             --add-host host.docker.internal:host-gateway \
             --name bastion \
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}-${{ matrix.image_os }}
-          # debug
-          echo $(sudo ls -la data/home/${{ env.USER }}/.ssh)
-          echo $(sudo cat data/home/${{ env.USER }}/.ssh/authorized_keys)
 
       - name: Run server
         run: |
