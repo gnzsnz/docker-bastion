@@ -3,6 +3,7 @@
 docker-compose.yml
 .vscode
 /test/tmp/*
+.python-version
 
 ### Linux ###
 *~
