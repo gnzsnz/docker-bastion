@@ -60,7 +60,7 @@ jobs:
           file: test/Dockerfile
           build-args: |
             BASE_VERSION=${{ env.BASE_VERSION }}
-          tags: openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }}
+          tags: gnzsnz/openssh:${{ env.IMAGE_VERSION }}-${{ matrix.server_os }}
 
       - name: Install dependencies
         run: |
