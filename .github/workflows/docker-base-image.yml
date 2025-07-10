@@ -72,7 +72,7 @@ jobs:
 
           - name: Build Docker image
             if: ${{ steps.create_issue.outputs.first_issue == 'true' }}
-            uses: docker/build-push-action@v5
+            uses: docker/build-push-action@v6
             with:
               push: false
               load: true
