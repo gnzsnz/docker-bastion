@@ -101,7 +101,7 @@ jobs:
           #
           docker cp /tmp/known_hosts client:/home/${{ env.USER }}/.ssh
           docker wait client
-          
+
       - name: Run Bastion
         run: |
           docker run -d --env-file .env -p ${{ env.SSH_LISTEN_PORT }}:22 \
