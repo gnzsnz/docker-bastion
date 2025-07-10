@@ -91,12 +91,14 @@ create_users() {
 	# create users from USERS var
 	IFS=','
 	for _user in $USERS; do
-		if ! id "$_user"; then
+		if ! id "$_user" 2>/dev/null; then
 			adduser --disabled-password \
 				--shell "$USER_SHELL" \
 				--quiet \
 				--gecos "$_user" "$_user"
 			usermod -a -G ssh-bastion "$_user"
+			usermod -p '*' "$_user" # disable password login
+			echo "> User $_user created"
 		fi
 		# TOTP provision
 		_totp_ga="/home/$_user/.google_authenticator"
@@ -147,6 +149,7 @@ set_keys_permissions() {
 			fi
 			if [ -f "$DATA/home/$_user/.ssh/authorized_keys" ]; then
 				chmod 640 "$DATA/home/$_user/.ssh/authorized_keys"
+				chown "$_user:$_user" "$DATA/home/$_user/.ssh/authorized_keys"
 				echo "> authorized_keys permissions set for $_user"
 			else
 				echo "> No authorized_keys for $_user"
@@ -175,7 +178,7 @@ set_sshd_config() {
 		ln -sf ${DATA}/etc/ssh /etc/
 	fi
 
-	if ! ls /etc/ssh/ssh_host_*key*; then
+	if ! ls /etc/ssh/ssh_host_*key* 2>/dev/null; then
 		# Dockerfile will delete host keys, create new keys if needed
 		# create host keys
 		echo "> Creating host keys ..."
@@ -185,6 +188,7 @@ set_sshd_config() {
 
 	echo "> Setting /etc/ssh/* permissions and ownership"
 	chown root:root "$DATA"/etc/ssh/
+	chown root:root -R "$DATA"/etc/ssh/*
 	# set 644 onwership, 600 for private key
 	find "$DATA"/etc/ssh/ -type f -exec chmod 644 {} \;
 	chmod 600 "$DATA"/etc/ssh/ssh_host*key
@@ -232,8 +236,8 @@ set_sshd_config
 echo "> sshd config set"
 
 echo "> Host key 🔑 fingerprints"
-ssh-keygen -lf $DATA/etc/ssh/ssh_host_rsa_key
-ssh-keygen -lf $DATA/etc/ssh/ssh_host_ed25519_key
+[ -f $DATA/etc/ssh/ssh_host_rsa_key ] && ssh-keygen -lf $DATA/etc/ssh/ssh_host_rsa_key
+[ -f $DATA/etc/ssh/ssh_host_ed25519_key ] && ssh-keygen -lf $DATA/etc/ssh/ssh_host_ed25519_key
 
 set_checksum
 echo "> Checksum set 🔑"

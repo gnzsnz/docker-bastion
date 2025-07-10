@@ -1,10 +1,11 @@
-ARG BASE_VERSION
+ARG BASE_VERSION=noble
 FROM ubuntu:${BASE_VERSION}
 
 ARG BASE_VERSION
 ARG APT_PROXY
 ARG IMAGE_VERSION
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# hadolint ignore=DL3008,SC2028
 RUN if [ -n "$APT_PROXY" ]; then \
       echo 'Acquire::http { Proxy "'$APT_PROXY'"; }'  \
       | tee /etc/apt/apt.conf.d/01proxy \
@@ -15,10 +16,13 @@ RUN if [ -n "$APT_PROXY" ]; then \
     openssh-server libpam-google-authenticator qrencode && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir /run/sshd && \
+    if id ubuntu; then \
+      userdel -rf ubuntu \
+    ;fi && \
+    groupadd -g 59999 ssh-bastion && \
     cp /etc/ssh/sshd_config /etc/ssh/sshd_config-dist && \
     awk '$5 >= 3071' /etc/ssh/moduli > /etc/ssh/moduli.secure && \
     mv /etc/ssh/moduli.secure /etc/ssh/moduli && \
-    groupadd -g 59999 ssh-bastion && \
     cp /etc/pam.d/sshd /etc/pam.d/sshd.back && \
     grep -v "include common-auth" /etc/pam.d/sshd.back > /etc/pam.d/sshd && \
     echo "# TOTP\nauth required pam_google_authenticator.so nullok\nauth"\
@@ -26,15 +30,9 @@ RUN if [ -n "$APT_PROXY" ]; then \
     rm /etc/ssh/ssh_host_*key*
 
 COPY sshd_config /etc/ssh/
-COPY sntrup761.conf-dist /etc/ssh/sshd_config.d/sntrup761.conf-dist
 COPY entrypoint.sh /
 COPY provision.sh /
 COPY bastion_banner.txt /
-
-RUN if grep -q 'jammy' /etc/lsb-release ; then \
-	mv /etc/ssh/sshd_config.d/sntrup761.conf-dist \
-    /etc/ssh/sshd_config.d/sntrup761.conf \
-    ;fi
 
 HEALTHCHECK --interval=30m --timeout=15s --start-period=10s \
   CMD timeout 1 bash -c '</dev/tcp/0.0.0.0/22 && echo "SSH Bastion running" || echo "Port is closed"' || echo "Connection timeout"

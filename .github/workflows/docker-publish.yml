@@ -6,14 +6,14 @@ on:
 
 env:
   IMAGE_NAME: gnzsnz/bastion
-  LATEST_TAG: jammy
+  LATEST_TAG: noble
 
 jobs:
   publish:
     name: Build and test OpenSSH Bastion
     strategy:
       matrix:
-        image_os: [focal, jammy]
+        image_os: [noble, jammy]
 
     runs-on: ubuntu-latest
 

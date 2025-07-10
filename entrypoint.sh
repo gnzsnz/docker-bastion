@@ -40,10 +40,8 @@ check_provision() {
 		echo "> checksum FAILED. 🔒 exiting ..."
 		echo "> You might want to provision your data/ dir
     docker run -it --rm --env-file .env \
-      --hostname=sftp \
       -v $PWD/data:/data \
-      --name sftp_provision \
-      gnzsnz/sftp /provision.sh
+      gnzsnz/bastion /provision.sh
     "
 		exit 1
 	fi
@@ -107,7 +105,7 @@ commmon_start() {
 
 echo "> SSH Bastion 🐡🏯"
 echo "> Running $*"
-if [ "$(basename "$1")" == "$DAEMON" ]; then
+if [ "$(basename "$1" 2>/dev/null)" == "$DAEMON" ]; then
 	commmon_start
 	echo "> Starting $* ... ${SSHD_OPT[*]}"
 	trap stop SIGINT SIGTERM
