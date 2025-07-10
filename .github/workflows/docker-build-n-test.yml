@@ -1,6 +1,7 @@
 name: OpenSSH Bastion Docker Image CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "master" ]
   pull_request:
@@ -16,10 +17,9 @@ jobs:
     strategy:
       matrix:
         image_os: [focal, jammy] # bastion docker image OS
-        runner_os: [20.04, 22.04] # CI runner
         server_os: [focal, jammy] # server&client OS
 
-    runs-on: ubuntu-${{ matrix.runner_os}}
+    runs-on: ubuntu-latest
     continue-on-error: true
 
     steps:
