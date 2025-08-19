@@ -25,7 +25,7 @@ RUN if [ -n "$APT_PROXY" ]; then \
     mv /etc/ssh/moduli.secure /etc/ssh/moduli && \
     cp /etc/pam.d/sshd /etc/pam.d/sshd.back && \
     grep -v "include common-auth" /etc/pam.d/sshd.back > /etc/pam.d/sshd && \
-    echo "# TOTP\nauth required pam_google_authenticator.so nullok\nauth"\
+    echo -e "# TOTP\nauth required pam_google_authenticator.so nullok\nauth"\
     "required pam_permit.so" >> /etc/pam.d/sshd && \
     rm /etc/ssh/ssh_host_*key*
 
