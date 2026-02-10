@@ -26,7 +26,7 @@ Follow the steps below to have a running SSH bastion:
 export USERS=devops,bastion
 mkdir $PWD/data/home/{$USERS}/.ssh
 # example to copy authorized_keys file
-cp /home/{$USERS}/.ssh/authorized_keys $PWD/data/{$USERS}/.ssh
+cp /home/{$USERS}/.ssh/authorized_keys $PWD/data/home/{$USERS}/.ssh
 ```
 
 - Provision the `data` folder. This is required to create the folder structure required by SSH bastion. See more details on [provisioning](#provision)
@@ -141,7 +141,7 @@ To set authorized keys,
 export USERS=devops,bastion
 mkdir $PWD/data/home/{$USERS}/.ssh
 # example to copy authorized_keys file
-cp /home/{$USERS}/.ssh/authorized_keys $PWD/data/{$USERS}/.ssh
+cp /home/{$USERS}/.ssh/authorized_keys $PWD/data/home/{$USERS}/.ssh
 ```
 
 This will copy pub keys for user `devops` and `bastion`.
