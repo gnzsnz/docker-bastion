@@ -38,7 +38,7 @@ jobs:
           echo "IMAGE_OS=${{ matrix.image_os }}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build OpenSSH Bastion Docker image
         uses: docker/build-push-action@v7

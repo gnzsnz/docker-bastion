@@ -68,7 +68,7 @@ jobs:
 
           - name: Set up Docker Buildx
             if: ${{ steps.create_issue.outputs.first_issue == 'true' }}
-            uses: docker/setup-buildx-action@v3
+            uses: docker/setup-buildx-action@v4
 
           - name: Build Docker image
             if: ${{ steps.create_issue.outputs.first_issue == 'true' }}
