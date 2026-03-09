@@ -61,7 +61,7 @@ jobs:
               fi
 
           - name: Set up QEMU
-            uses: docker/setup-qemu-action@v3
+            uses: docker/setup-qemu-action@v4
             if: ${{ steps.create_issue.outputs.first_issue == 'true' }}
             with:
               platforms: ${{ env.PLATFORMS }}
