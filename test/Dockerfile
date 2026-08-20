@@ -6,6 +6,8 @@ ARG USER_ID=1000
 ARG USER_GID=1000
 ARG USER=bastion
 ARG APT_PROXY=
+ARG DEBIAN_FRONTEND=noninteractive
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
 RUN if [ -n "${APT_PROXY}" ]; then \
@@ -13,10 +15,10 @@ RUN if [ -n "${APT_PROXY}" ]; then \
       | tee /etc/apt/apt.conf.d/01proxy \
     ;fi && \
     apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    apt-get install -y \
       --no-install-recommends openssh-server openssh-client && \
     rm -rf /var/lib/apt/lists/* && \
-    mkdir /run/sshd && \
+    mkdir -p /run/sshd && \
     cp /etc/ssh/sshd_config /etc/ssh/sshd_config-dist && \
     awk '$5 >= 3071' /etc/ssh/moduli > /etc/ssh/moduli.secure && \
     mv /etc/ssh/moduli.secure /etc/ssh/moduli && \
