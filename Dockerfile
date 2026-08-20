@@ -1,9 +1,11 @@
-ARG BASE_VERSION=noble
+ARG BASE_VERSION=resolute
 FROM ubuntu:${BASE_VERSION}
 
 ARG BASE_VERSION
 ARG APT_PROXY
 ARG IMAGE_VERSION
+ARG DEBIAN_FRONTEND=noninteractive
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008,SC2028
 RUN if [ -n "$APT_PROXY" ]; then \
@@ -12,10 +14,11 @@ RUN if [ -n "$APT_PROXY" ]; then \
     ;fi && \
     apt-get update && \
     apt-get upgrade -yq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    apt-get install --no-install-recommends -y \
     openssh-server libpam-google-authenticator qrencode && \
+    ( [ "${BASE_VERSION}" = "resolute" ] && apt-get install --no-install-recommends -y util-linux-extra || true ) &&\
     rm -rf /var/lib/apt/lists/* && \
-    mkdir /run/sshd && \
+    mkdir -p /run/sshd && \
     if id ubuntu; then \
       userdel -rf ubuntu \
     ;fi && \
@@ -34,6 +37,7 @@ COPY entrypoint.sh /
 COPY provision.sh /
 COPY bastion_banner.txt /
 
+# hadolint ignore=DL3025
 HEALTHCHECK --interval=30m --timeout=15s --start-period=10s \
   CMD timeout 1 bash -c '</dev/tcp/0.0.0.0/22 && echo "SSH Bastion running" || echo "Port is closed"' || echo "Connection timeout"
 
