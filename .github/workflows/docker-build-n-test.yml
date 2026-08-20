@@ -16,9 +16,9 @@ jobs:
     name: Build and test OpenSSH Bastion
     strategy:
       matrix:
-        image_os: [noble, jammy] # bastion docker image OS
-        runner_os: [24.04, 22.04] # CI runner
-        server_os: [noble, jammy] # server&client OS
+        image_os: [noble, resolute] # bastion docker image OS
+        runner_os: [24.04, 26.04] # CI runner
+        server_os: [noble, resolute] # server&client OS
 
     runs-on: ubuntu-latest
     continue-on-error: true

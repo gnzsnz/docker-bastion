@@ -6,17 +6,17 @@ on:
   workflow_dispatch:
 
 env:
-  SEARCH_FOR: openssh-server openssh-sftp-server openssh-client libcrypt1 libssl3
+  SEARCH_FOR: openssh-server openssh-sftp-server openssh-client libcrypt1 libssl3t64
   SEARCH_TERM: 'Depends:\|Version:'
   IMAGE_NAME: gnzsnz/bastion
 
 jobs:
   checkupdate:
       name: Check for dpkg updates
-      runs-on: ubuntu-22.04
+      runs-on: ubuntu-latest
       strategy:
         matrix:
-          image_os: [noble, jammy]
+          image_os: [noble, resolute]
 
       steps:
         - name: Checkout
